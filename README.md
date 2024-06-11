@@ -1,6 +1,6 @@
 DrillShare webapp 
 
-
+Steps on how to run app locally will be in the application folder
 
 
 

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Pages/Registeration.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Pages/Registeration.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import * as React from 'react';
+import axios from 'axios';
+import Avatar from '@mui/material/Avatar';
+import Button from '@mui/material/Button';
+import CssBaseline from '@mui/material/CssBaseline';
+import TextField from '@mui/material/TextField';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import Link from '@mui/material/Link';
+import Grid from '@mui/material/Grid';
+import Box from '@mui/material/Box';
+import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
+import Typography from '@mui/material/Typography';
+import Container from '@mui/material/Container';
+import {createTheme, ThemeProvider} from '@mui/material/styles';
+import Navbar from '../Components/navbar.component';
+import SearchBar from '../Components/SearchBar';
+import SignIn from './Login';
+import {useNavigate} from 'react-router-dom';
+
+const URL = process.env.REACT_APP_URL;
+
+/**
+ * Copyright
+ * @param {appinfo} props
+ * @return {JSX.Element}
+ * @constructor
+ */
+function Copyright(props) {
+  return (
+    &lt;Typography
+      variant="body2"
+      color="text.secondary"
+      align="center"
+      {...props}
+    >
+      {'Copyright © '}
+      &lt;Link color="inherit">DrillShare&lt;/Link> {new Date().getFullYear()}
+      {'.'}
+    &lt;/Typography>
+  );
+}
+
+const theme = createTheme();
+const inputProps = {
+  color: 'white',
+  height: '100px',
+};
+
+/**
+ * Signup
+ * @return {JSX.Element}
+ * @constructor
+ */
+const SignUp = () => {
+  const navigate = useNavigate();
+
+  const [firstName, setFirstName] = React.useState('');
+  const [lastName, setLastName] = React.useState('');
+  const [userName, setUserName] = React.useState('');
+  const [email, setEmail] = React.useState('');
+  const [password, setPassword] = React.useState('');
+
+  const handleSubmit = () => {
+    // event.preventDefault();
+    // const data = new FormData(event.currentTarget);
+    // console.log({
+    //   email: data.get("email"),
+    //   password: data.get("password"),
+    // });
+    const user = {
+      firstName: firstName,
+      lastName: lastName,
+      email: email,
+      username: userName,
+      password: password,
+    };
+    console.log(user);
+
+    axios.post(`${URL}auth/signup`, user)
+        .then((res) => {
+          navigate('/login');
+        })
+        .catch((e) => console.log(e));
+  };
+
+  return (
+    &lt;div>
+      {/* &lt;Navbar>
+        &lt;div>
+          &lt;SearchBar>&lt;/SearchBar>
+        &lt;/div>
+      &lt;/Navbar> */}
+      &lt;ThemeProvider theme={theme}>
+        &lt;Container component="main" maxWidth="xs">
+          &lt;CssBaseline/>
+          &lt;Box
+            sx={{
+              marginTop: 8,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+            }}
+          >
+            &lt;Avatar sx={{m: 1, bgcolor: 'main'}}>
+              &lt;LockOutlinedIcon/>
+            &lt;/Avatar>
+            &lt;Typography component="h1" variant="h5">
+                            Sign up
+            &lt;/Typography>
+            {/* &lt;Box
+              component="form"
+              noValidate
+              onSubmit={handleSubmit}
+              sx={{ mt: 3 }}
+            > */}
+            &lt;Grid container spacing={2}>
+              &lt;Grid item xs={12} sm={6}>
+                &lt;TextField
+                  // id="filled-basic"
+                  // label="Filled"
+                  variant="filled"
+                  autoComplete="given-name"
+                  name="firstName"
+                  required
+                  fullWidth
+                  id="firstName"
+                  label="First Name"
+                  autoFocus
+                  InputProps={{
+                    inputProps,
+                  }}
+                  onChange={(e) => setFirstName(e.target.value)}
+                />
+              &lt;/Grid>
+              &lt;Grid item xs={12} sm={6}>
+                &lt;TextField
+                  variant="filled"
+                  required
+                  fullWidth
+                  id="lastName"
+                  label="Last Name"
+                  name="lastName"
+                  autoComplete="family-name"
+                  onChange={(e) => setLastName(e.target.value)}
+                />
+              &lt;/Grid>
+              &lt;Grid item xs={12}>
+                &lt;TextField
+                  variant="filled"
+                  required
+                  fullWidth
+                  id="email"
+                  label="Email Address"
+                  name="email"
+                  autoComplete="email"
+                  onChange={(e) => setEmail(e.target.value)}
+                />
+              &lt;/Grid>
+              &lt;Grid item xs={12}>
+                &lt;TextField
+                  variant="filled"
+                  required
+                  fullWidth
+                  id="userName"
+                  label="Username"
+                  name="username"
+                  autoComplete="username"
+                  onChange={(e) => setUserName(e.target.value)}
+                />
+              &lt;/Grid>
+              &lt;Grid item xs={12}>
+                &lt;TextField
+                  variant="filled"
+                  required
+                  fullWidth
+                  name="password"
+                  label="Password"
+                  type="password"
+                  id="password"
+                  autoComplete="new-password"
+                  onChange={(e) => setPassword(e.target.value)}
+                />
+              &lt;/Grid>
+              &lt;Grid item xs={20}>
+                &lt;FormControlLabel
+                  required
+                  control={&lt;Checkbox color="primary"/>}
+                  label="I accept terms and conditions"
+                />
+              &lt;/Grid>
+            &lt;/Grid>
+            &lt;Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              sx={{mt: 3, mb: 2}}
+              onClick={handleSubmit}
+            >
+                            Sign Up
+            &lt;/Button>
+            &lt;Grid container justifyContent="flex-end">
+              &lt;Grid item>
+                &lt;Link href="/Login" variant="body2">
+                                    Already have an account? Sign in
+                &lt;/Link>
+              &lt;/Grid>
+            &lt;/Grid>
+          &lt;/Box>
+          {/* &lt;/Box> */}
+          &lt;Copyright sx={{mt: 5}}/>
+        &lt;/Container>
+      &lt;/ThemeProvider>
+    &lt;/div>
+  );
+};
+
+export default SignUp;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="CardComponent.html">CardComponent</a></li><li><a href="CartItem.html">CartItem</a></li><li><a href="Checkout.html">Checkout</a></li><li><a href="ChoicesMenu.html">ChoicesMenu</a></li><li><a href="Copyright.html">Copyright</a></li><li><a href="Create.html">Create</a></li><li><a href="DeleteButton.html">DeleteButton</a></li><li><a href="Description.html">Description</a></li><li><a href="DetailedItem.html">DetailedItem</a></li><li><a href="Footer.html">Footer</a></li><li><a href="Home.html">Home</a></li><li><a href="module.exports.html">exports</a></li><li><a href="NameImage.html">NameImage</a></li><li><a href="Payment.html">Payment</a></li><li><a href="RateAvailability.html">RateAvailability</a></li><li><a href="RentButton.html">RentButton</a></li><li><a href="Search.html">Search</a></li><li><a href="SearchBar.html">SearchBar</a></li><li><a href="Shipping.html">Shipping</a></li><li><a href="SignUp.html">SignUp</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sat Apr 30 2022 06:22:51 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

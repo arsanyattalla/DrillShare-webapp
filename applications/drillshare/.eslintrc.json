@@ -1,0 +1,38 @@
+{
+    "env": {
+        "browser": true,
+        "es2021": true
+    },
+    "extends": [
+        "plugin:react/recommended",
+        "google"
+    ],
+    "parser": "@babel/eslint-parser",
+    "parserOptions": {
+        "ecmaFeatures": {
+            "jsx": true
+        },
+        "babelOptions": {
+            "presets": [
+                "@babel/preset-react"
+            ]
+        },
+        "requireConfigFile": false,
+        "ecmaVersion": "latest",
+        "sourceType": "module"
+    },
+    "plugins": [
+        "react"
+    ],
+    "ignorePatterns" : ["server"],
+    "rules": {
+        "no-unused-vars": 1,
+        "react/jsx-filename-extension": 0,
+        "react/jsx-props-no-spreading": "off",
+        "camelcase": "off",
+        "no-underscore-dangle": "off",
+        "no-shadow": "off",
+        "react/jsx-key": "off",
+        "linebreak-style": 0
+    }
+}

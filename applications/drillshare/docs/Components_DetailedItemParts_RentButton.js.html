@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Components/DetailedItemParts/RentButton.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Components/DetailedItemParts/RentButton.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, {useState} from 'react';
+import axios from 'axios';
+import Button from '@mui/material/Button';
+import {Grid, Modal, Typography, Box} from '@mui/material';
+import Session from 'react-session-api';
+import {useNavigate} from 'react-router-dom';
+import {LocalizationProvider} from '@mui/x-date-pickers/LocalizationProvider';
+import {AdapterDateFns} from '@mui/x-date-pickers/AdapterDateFns';
+import {DatePicker} from '@mui/x-date-pickers/DatePicker';
+import TextField from '@mui/material/TextField';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import Select from '@mui/material/Select';
+import MenuItem from '@mui/material/MenuItem';
+
+const URL = process.env.REACT_APP_URL;
+const today = new Date();
+
+const style = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 'fit-content',
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  pt: 2,
+  px: 4,
+  pb: 3,
+};
+
+/**
+ * RentButton
+ * @param {listing} prop
+ * @return {JSX.Element}
+ * @constructor
+ */
+function RentButton(prop) {
+  console.log('rent: ', prop);
+  const navigate = useNavigate();
+
+  const [rentDate, setRentDate] = React.useState(null);
+  const [returnDate, setReturnDate] = React.useState(null);
+  const [rate, setRate] = React.useState('');
+
+  const handleChange = (event) => {
+    setRate(event.target.value);
+  };
+
+  const [open, setOpen] = useState(false);
+  const handleOpen = () => {
+    setOpen(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleRent = () => {
+    // const body = {
+    //   renter: Session.get("token").id,
+    //   listing: prop._id,
+    //   rentalStatus: 1,
+    // };
+    // console.log('body: ', body)
+    // axios.post(`${URL}updateListing`, body)
+    //   .then((res) => {
+    //     console.log(res.data);
+    //     // window.location.reload(true)
+    //   })
+    //   .catch((e) => console.log(e));
+
+    if (rentDate === null || returnDate === null || rate === '') {
+      alert('Fill in required dates and/or rates');
+    } else {
+      const obj = {prop, rentDate, returnDate};
+      navigate('/checkout', {state: obj});
+    }
+  };
+
+  const handleReturn = () => {
+    const body = {
+      renter: '',
+      listing: prop._id,
+      rentalStatus: 0,
+    };
+    axios
+        .post(`${URL}updateListing`, body)
+        .then((res) => {
+          console.log(res.data);
+        })
+        .catch((e) => console.log(e));
+  };
+
+  return (
+    &lt;div>
+      &lt;Grid direction="column" sx={{margin: 2}}>
+        &lt;Grid item sx={{margin: 1}}>
+          &lt;LocalizationProvider dateAdapter={AdapterDateFns}>
+            &lt;DatePicker
+              label="Rent On"
+              value={rentDate}
+              minDate={today}
+              onChange={(newValue) => {
+                setRentDate(newValue);
+              }}
+              renderInput={(params) => &lt;TextField {...params} required/>}
+            />
+          &lt;/LocalizationProvider>
+        &lt;/Grid>
+
+        &lt;Grid item sx={{margin: 1}}>
+          &lt;LocalizationProvider dateAdapter={AdapterDateFns}>
+            &lt;DatePicker
+              label="Return On"
+              value={returnDate}
+              minDate={rentDate}
+              onChange={(newValue) => {
+                setReturnDate(newValue);
+              }}
+              renderInput={(params) => &lt;TextField {...params} required/>}
+            />
+          &lt;/LocalizationProvider>
+        &lt;/Grid>
+
+        &lt;Grid item sx={{margin: 1}}>
+          &lt;FormControl style={{minWidth: 260}}>
+            &lt;InputLabel id="demo-simple-select-label">Select a rate&lt;/InputLabel>
+            &lt;Select
+              labelId="demo-simple-select-label"
+              id="demo-simple-select"
+              value={rate}
+              label="Select a rate"
+              onChange={handleChange}
+            >
+              &lt;MenuItem value={prop.rateHourly}>Hourly Rate: ${prop.rateHourly}&lt;/MenuItem>
+              &lt;MenuItem value={prop.rateDaily}>Daily Rate: ${prop.rateDaily}&lt;/MenuItem>
+            &lt;/Select>
+          &lt;/FormControl>
+        &lt;/Grid>
+
+      &lt;/Grid>
+
+      &lt;Grid item xs={12}>
+        {prop.rentalStatus === 0 ? (
+          &lt;Button
+            variant="contained"
+            disableElevation
+            component="div"
+            onClick={handleRent}
+          >
+            Rent Now
+          &lt;/Button>
+        ) : prop.currentRenter === Session.get('token').id ? (
+          &lt;div>
+            &lt;Button
+              variant="contained"
+              disableElevation
+              component="div"
+              onClick={handleOpen}
+            >
+              Return
+            &lt;/Button>
+            &lt;Modal
+              open={open}
+              onClose={handleClose}
+              aria-labelledby="parent-modal-title"
+              aria-describedby="parent-modal-description"
+            >
+              &lt;Box sx={{...style, width: 'fit-content'}}>
+                &lt;Typography id="modal-modal-title" variant="h6" component="h2">
+                  Do you want to return this item?
+                &lt;/Typography>
+                &lt;Typography id="modal-modal-description" sx={{mt: 2, mb: 2}}>
+                  Selecting "YES" will begin the return process!
+                &lt;/Typography>
+                &lt;Box display="flex" justifyContent="space-between">
+                  &lt;Button
+                    variant="outlined"
+                    color="error"
+                    disableElevation
+                    onClick={handleClose}
+                  >
+                    NO, CANCEL
+                  &lt;/Button>
+                  &lt;Button
+                    variant="contained"
+                    color="success"
+                    disableElevation
+                    onClick={handleReturn}
+                  >
+                    YES
+                  &lt;/Button>
+                &lt;/Box>
+              &lt;/Box>
+            &lt;/Modal>
+          &lt;/div>
+        ) : (
+          &lt;Button variant="contained" disableElevation component="div">
+            Currently Unavailable
+          &lt;/Button>
+        )}
+      &lt;/Grid>
+    &lt;/div>
+  );
+}
+
+export default RentButton;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="CardComponent.html">CardComponent</a></li><li><a href="CartItem.html">CartItem</a></li><li><a href="Checkout.html">Checkout</a></li><li><a href="ChoicesMenu.html">ChoicesMenu</a></li><li><a href="Copyright.html">Copyright</a></li><li><a href="Create.html">Create</a></li><li><a href="DeleteButton.html">DeleteButton</a></li><li><a href="Description.html">Description</a></li><li><a href="DetailedItem.html">DetailedItem</a></li><li><a href="Footer.html">Footer</a></li><li><a href="Home.html">Home</a></li><li><a href="module.exports.html">exports</a></li><li><a href="NameImage.html">NameImage</a></li><li><a href="Payment.html">Payment</a></li><li><a href="RateAvailability.html">RateAvailability</a></li><li><a href="RentButton.html">RentButton</a></li><li><a href="Search.html">Search</a></li><li><a href="SearchBar.html">SearchBar</a></li><li><a href="Shipping.html">Shipping</a></li><li><a href="SignUp.html">SignUp</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sat Apr 30 2022 06:22:51 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

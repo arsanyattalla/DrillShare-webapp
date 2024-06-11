@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Pages/Create.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Pages/Create.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from 'react';
+import axios from 'axios';
+import './pages.css';
+import Session from 'react-session-api';
+import {useNavigate} from 'react-router-dom';
+import {Container, TextField, Typography, Box, Button} from '@mui/material';
+import PhotoCamera from '@mui/icons-material/PhotoCamera';
+
+const URL = process.env.REACT_APP_URL;
+
+const style = {
+  minWidth: '25%',
+};
+
+/**
+ * Create
+ * @return {JSX.Element}
+ * @constructor
+ */
+const Create = () => {
+  const navigate = useNavigate();
+  const [name, setName] = React.useState('');
+  const [category, setCategory] = React.useState('');
+  const [model_num, setModel_num] = React.useState('');
+  const [title, setTitle] = React.useState('');
+  const [description, setDescription] = React.useState('');
+  const [rateHourly, setRateHourly] = React.useState('');
+  const [rateDaily, setRateDaily] = React.useState('');
+  // console.log(Session.get('token'));
+
+  const createListing = () => {
+    const tool = {
+      name: name,
+      category: category,
+      model_num: model_num,
+    };
+
+    axios
+        .post(`${URL}createTool`, tool)
+        .then((res) => {
+          const tool_id = res.data._id;
+          const formData = new FormData();
+          formData.append('postOwner', Session.get('token').id);
+          formData.append('toolID', tool_id);
+          formData.append('title', title);
+          formData.append('description', description);
+          formData.append('rateHourly', rateHourly);
+          formData.append('rateDaily', rateDaily);
+
+          const files = document.getElementById('image');
+          // console.log("FILES: ", files.files);
+          for (let i = 0; i &lt; files.files.length; i++) {
+            formData.append('image', files.files[i]);
+          }
+
+          axios
+              .post(`${URL}createListing`, formData, {
+                headers: {
+                  'Content-Type': 'multipart/form-data',
+                },
+              })
+              .then((res) => {
+                console.log(res);
+                navigate('/');
+              })
+              .catch((e) => console.log(e));
+        })
+        .catch((e) => console.log(e));
+  };
+
+  return (
+    &lt;Container>
+      &lt;Box bgcolor="primary" style={{textAlign: 'center'}}>
+        &lt;Typography variant="h4" color="#fefefe">
+          Create!
+        &lt;/Typography>
+        &lt;Typography color="#fefefe" variant="h5" sx={{mt: 5, pt: 2.5}}>
+          Tool
+        &lt;/Typography>
+        &lt;TextField
+          sx={{...style}}
+          required
+          label="Name"
+          margin="normal"
+          size="small"
+          value={name}
+          className="tool-input"
+          onChange={(e) => setName(e.target.value)}
+        />{' '}
+        &lt;br />
+        &lt;TextField
+          sx={{...style}}
+          required
+          label="Category"
+          margin="normal"
+          size="small"
+          value={category}
+          className="tool-input"
+          onChange={(e) => setCategory(e.target.value)}
+        />{' '}
+        &lt;br />
+        &lt;TextField
+          sx={{...style}}
+          required
+          label="Model Number"
+          margin="normal"
+          size="small"
+          value={model_num}
+          className="tool-input"
+          onChange={(e) => setModel_num(e.target.value)}
+        />{' '}
+        &lt;br />
+        &lt;Typography color="#fefefe" variant="h5">
+          Listing
+        &lt;/Typography>
+        &lt;TextField
+          sx={{...style}}
+          required
+          label="Title"
+          margin="normal"
+          size="small"
+          value={title}
+          className="tool-input"
+          onChange={(e) => setTitle(e.target.value)}
+        />{' '}
+        &lt;br />
+        &lt;TextField
+          sx={{...style}}
+          required
+          multiline
+          rows={4}
+          label="Description"
+          margin="normal"
+          size="small"
+          value={description}
+          className="tool-input"
+          onChange={(e) => setDescription(e.target.value)}
+        />{' '}
+        &lt;br />
+        &lt;TextField
+          required
+          type="number"
+          label="Hourly Rate"
+          margin="normal"
+          size="small"
+          value={rateHourly}
+          className="tool-input"
+          onChange={(e) => setRateHourly(e.target.value)}
+        />{' '}
+        &lt;br />
+        &lt;TextField
+          required
+          type="number"
+          label="Daily Rate"
+          margin="normal"
+          size="small"
+          value={rateDaily}
+          className="tool-input"
+          onChange={(e) => setRateDaily(e.target.value)}
+        />{' '}
+        &lt;br />
+        &lt;label>Select One or More Image(s)&lt;/label>
+        &lt;br />
+        &lt;input
+          accept="image/*"
+          style={{display: 'none'}}
+          id="image"
+          multiple
+          type="file"
+          name="image"
+          className="tool-input"
+        />
+        &lt;label htmlFor="image">
+          &lt;Button
+            sx={{mt: 1}}
+            size="small"
+            color="primary"
+            variant="contained"
+            component="span"
+            endIcon={&lt;PhotoCamera />}
+          >
+            Choose Image
+          &lt;/Button>
+        &lt;/label>{' '}
+        &lt;br />
+        &lt;Button
+          sx={{mt: 5, mb: 5}}
+          variant="contained"
+          onClick={createListing}
+        >
+          Create Listing
+        &lt;/Button>
+      &lt;/Box>
+    &lt;/Container>
+  );
+};
+
+export default Create;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="CardComponent.html">CardComponent</a></li><li><a href="CartItem.html">CartItem</a></li><li><a href="Checkout.html">Checkout</a></li><li><a href="ChoicesMenu.html">ChoicesMenu</a></li><li><a href="Copyright.html">Copyright</a></li><li><a href="Create.html">Create</a></li><li><a href="DeleteButton.html">DeleteButton</a></li><li><a href="Description.html">Description</a></li><li><a href="DetailedItem.html">DetailedItem</a></li><li><a href="Footer.html">Footer</a></li><li><a href="Home.html">Home</a></li><li><a href="module.exports.html">exports</a></li><li><a href="NameImage.html">NameImage</a></li><li><a href="Payment.html">Payment</a></li><li><a href="RateAvailability.html">RateAvailability</a></li><li><a href="RentButton.html">RentButton</a></li><li><a href="Search.html">Search</a></li><li><a href="SearchBar.html">SearchBar</a></li><li><a href="Shipping.html">Shipping</a></li><li><a href="SignUp.html">SignUp</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sat Apr 30 2022 06:22:51 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

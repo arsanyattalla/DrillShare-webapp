@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: Pages/Profile.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: Pages/Profile.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, {useState, useEffect} from 'react';
+import axios from 'axios';
+import Navbar from '../Components/navbar.component';
+import Session from 'react-session-api';
+import {useNavigate} from 'react-router-dom';
+import 'bulma/css/bulma.min.css';
+import {parseISO, format} from 'date-fns';
+import RentedCard from '../Components/Profile/RentedCard';
+import PostedCard from '../Components/Profile/PostedCard';
+import {
+  Form,
+  Section,
+  Columns,
+  Heading,
+  Card,
+  Container,
+  Icon,
+  Block,
+  Button,
+  Input,
+  Select,
+  Field,
+  Control,
+  Label,
+} from 'react-bulma-components';
+
+
+const URL = process.env.REACT_APP_URL;
+
+/**
+ * Profile
+ * @return {JSX.Element}
+ * @constructor
+ */
+export default function Profile() {
+  const navigate = useNavigate();
+
+  const [nameFirst, setFirstName] = useState('');
+  const [nameLast, setLastName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [driversLicence, setDriversLicence] = useState('');
+  const [address, setAddress] = useState('');
+  const [dob, setDob] = useState('');
+
+  const [cc, setCC] = useState('');
+  const [cardType, setCardType] = useState('');
+  const [expDate, setExpDate] = useState('');
+  const [authCode, setAuthCode] = useState('');
+
+  useEffect(() => {
+    // const params = new URLSearchParams();
+    // params.append('id', Session.get('token')['id']);
+    // console.log(params)
+    axios.get(`${URL}getProfile?_id=${Session.get('token').id}`)
+        .then((res) => {
+          if (res.data) {
+            console.log(res.data);
+            const profile = res.data.profile[0];
+            setFirstName(profile.nameFirst);
+            setLastName(profile.nameLast);
+            setEmail(profile.email);
+            setPhone(profile.phone);
+            setDriversLicence(profile.driversLicence);
+            setAddress(profile.address);
+            // setDob(format(parseISO(profile.dob), 'MM/dd/yyyy'));
+            setDob(profile.dob);
+          } else {
+            console.log('Couldn\'t get profile:' + Session.get('token')['id']);
+          }
+        });
+
+    axios.get(`${URL}getPayment?_id=${Session.get('token').id}`)
+        .then((res) => {
+          if (res.data) {
+            const cc = res.data.payment[0];
+            setCC(cc.cardNumber);
+            setCardType(cc.creditcardType);
+            setExpDate(cc.expDate);
+            setAuthCode(cc.authCode);
+          } else {
+            console.log('Couldn\'t get CC of ' + Session.get('token')['id']);
+          }
+        });
+  }, []);
+
+  const handleProfileSubmit = (event) => {
+    event.preventDefault();
+
+    const params = new URLSearchParams();
+    params.append('id', Session.get('token').id);
+    params.append('nameFirst', nameFirst);
+    params.append('nameLast', nameLast);
+    params.append('email', email);
+    params.append('phone', phone);
+    params.append('driversLicence', driversLicence);
+    params.append('address', address);
+    params.append('dob', dob);
+
+    axios.post(URL + `updateProfile`, params)
+        .then((res) => {
+          if (res.data) {
+            console.log(res.data);
+            // navigate('/profile');
+            // navigate(0);    // refesh the page
+          } else {
+            console.log('Update profile failed.');
+          }
+        });
+  };
+
+  const handleCCSubmit = (event) => {
+    event.preventDefault();
+
+    const params = new URLSearchParams();
+
+    params.append('cardNumber', cc);
+    params.append('expDate', expDate);
+    params.append('authCode', authCode);
+    params.append('creditcardType', cardType);
+    params.append('userid', Session.get('token')['id']);
+
+    axios.post(URL + `updatePayment`, params)
+        .then((res) => {
+          if (res.data) {
+            console.log(res.data);
+            // navigate('/profile');
+            navigate(0); // refesh the page
+          } else {
+            console.log(res.data);
+            console.log('Update profile failed.');
+          }
+        });
+  };
+  return (
+    &lt;div>
+      &lt;Section style={{minHeight: '100%'}}>
+
+        &lt;Container mb={5}>
+          &lt;Card p={6} style={{margin: 'auto', height: '100%'}}>
+            &lt;Heading>
+                            Profile
+            &lt;/Heading>
+            &lt;Heading subtitle>
+                            Update your profile details below.
+            &lt;/Heading>
+            &lt;Container>
+              &lt;form onSubmit={handleProfileSubmit}>
+                {/* Name*/}
+                &lt;Columns>
+                  &lt;Columns.Column>
+                    &lt;Form.Field>
+                      &lt;Form.Label textAlign="left">First name&lt;/Form.Label>
+                      &lt;Form.Control fullwidth>
+                        &lt;Form.Input
+                          placeholder="Tom"
+                          value={nameFirst || ''}
+                          onChange={(e) => {
+                            setFirstName(e.target.value);
+                          }}
+                        />
+                      &lt;/Form.Control>
+                    &lt;/Form.Field>
+                  &lt;/Columns.Column>
+                  &lt;Columns.Column>
+                    &lt;Form.Label textAlign="left">Last name&lt;/Form.Label>
+                    &lt;Form.Control fullwidth>
+                      &lt;Form.Input
+                        placeholder="Brady"
+                        value={nameLast || ''}
+                        onChange={(e) => {
+                          setLastName(e.target.value);
+                        }}
+                      />
+                    &lt;/Form.Control>
+                  &lt;/Columns.Column>
+
+                &lt;/Columns>
+
+                {/* driversLicence: String,*/}
+                &lt;Columns>
+                  &lt;Columns.Column>
+                    &lt;Form.Field>
+                      &lt;Form.Label textAlign={'left'}>
+                        Driver's Licence
+                      &lt;/Form.Label>
+                      &lt;Form.Control fullwidth>
+                        &lt;Form.Input
+                          placeholder="L1234567"
+                          value={driversLicence || ''}
+                          onChange={(e) => {
+                            setDriversLicence(e.target.value);
+                          }}
+                        />
+                      &lt;/Form.Control>
+                    &lt;/Form.Field>
+                  &lt;/Columns.Column>
+                  &lt;Columns.Column>
+                    {/* dob: Date,*/}
+                    &lt;Form.Field>
+                      &lt;Form.Label textAlign={'left'}>Birthday&lt;/Form.Label>
+                      &lt;Form.Control fullwidth>
+                        &lt;Form.Input
+                          placeholder="01/01/1990"
+                          value={dob || ''}
+                          onChange={(e) => {
+                            setDob(e.target.value);
+                          }}
+                        />
+                      &lt;/Form.Control>
+                    &lt;/Form.Field>
+                  &lt;/Columns.Column>
+                &lt;/Columns>
+
+                &lt;Columns>
+                  &lt;Columns.Column>
+                    {/* phone: String,*/}
+                    &lt;Form.Field>
+                      &lt;Form.Label textAlign={'left'}>Phone&lt;/Form.Label>
+                      &lt;Form.Control fullwidth>
+                        &lt;Form.Input
+                          placeholder="(123) 456-7890"
+                          value={phone || ''}
+                          onChange={(e) => {
+                            setPhone(e.target.value);
+                          }}
+                        />
+                      &lt;/Form.Control>
+                    &lt;/Form.Field>
+                  &lt;/Columns.Column>
+                  &lt;Columns.Column>
+                    {/* address: String,*/}
+                    &lt;Form.Field>
+                      &lt;Form.Label textAlign={'left'}>Address&lt;/Form.Label>
+                      &lt;Form.Control fullwidth>
+                        &lt;Form.Input
+                          placeholder="123 Market St. San Francisco, CA 94117"
+                          value={address || ''}
+                          onChange={(e) => {
+                            setAddress(e.target.value);
+                          }}
+                        />
+                      &lt;/Form.Control>
+                    &lt;/Form.Field>
+                  &lt;/Columns.Column>
+                &lt;/Columns>
+
+                &lt;Form.Field kind="group">
+                  &lt;Form.Control>
+                    &lt;Button color="link">Submit&lt;/Button>
+                  &lt;/Form.Control>
+                  &lt;Form.Control>
+                    &lt;Button color="link" colorVariant="light">
+                                            Cancel
+                    &lt;/Button>
+                  &lt;/Form.Control>
+                &lt;/Form.Field>
+              &lt;/form>
+            &lt;/Container>
+          &lt;/Card>
+        &lt;/Container>
+
+
+      &lt;/Section>
+      &lt;Section style={{minHeight: '100%'}}>
+        &lt;Container mb={5}>
+          &lt;Card p={6} style={{margin: 'auto', height: '100%'}}>
+            &lt;Heading>
+                            Credit Card
+            &lt;/Heading>
+            &lt;Heading subtitle>
+                            Update your payment information here.
+            &lt;/Heading>
+            &lt;Container>
+
+              &lt;form onSubmit={handleCCSubmit}>
+
+                &lt;Columns>
+                  &lt;Columns.Column>
+                    &lt;Form.Field>
+                      &lt;Form.Label textAlign="left">Card Number&lt;/Form.Label>
+                      &lt;Form.Control fullwidth>
+                        &lt;Form.Input
+                          placeholder="4043 1234 5678 9011"
+                          value={cc || ''}
+                          onChange={(e) => {
+                            return setCC(e.target.value);
+                          }}
+                        />
+                      &lt;/Form.Control>
+                    &lt;/Form.Field>
+                  &lt;/Columns.Column>
+
+                &lt;/Columns>
+
+                &lt;Columns>
+                  &lt;Columns.Column>
+                    &lt;Form.Field>
+                      &lt;Form.Label textAlign={'left'}>Exp. Date&lt;/Form.Label>
+                      &lt;Form.Control fullwidth>
+                        &lt;Form.Input
+                          placeholder="02/29"
+                          value={expDate || ''}
+                          onChange={(e) => {
+                            return setExpDate(e.target.value);
+                          }}
+                        />
+                      &lt;/Form.Control>
+                    &lt;/Form.Field>
+                  &lt;/Columns.Column>
+                  &lt;Columns.Column>
+                    &lt;Form.Field>
+                      &lt;Form.Label textAlign={'left'}>CVV&lt;/Form.Label>
+                      &lt;Form.Control fullwidth>
+                        &lt;Form.Input
+                          placeholder="123"
+                          value={authCode || ''}
+                          onChange={(e) => {
+                            return setAuthCode(e.target.value);
+                          }}
+                        />
+                      &lt;/Form.Control>
+                    &lt;/Form.Field>
+                  &lt;/Columns.Column>
+                  &lt;Columns.Column>
+                    &lt;Form.Field>
+                      &lt;Form.Label textAlign={'left'}>Type&lt;/Form.Label>
+                      &lt;Form.Control fullwidth>
+                        &lt;Form.Select fullwidth
+                          onChange={(e) => {
+                            console.log(e.target.value);
+                            return setCardType(e.target.value);
+                          }}
+                        >
+                          &lt;option value="Current">
+                            {cardType}
+                          &lt;/option>
+                          {cardType !== 'Mastercard' &amp;&amp;
+                                                    &lt;option value="Mastercard">
+                                                        Mastercard
+                                                    &lt;/option>}
+                          {cardType !== 'Visa' &amp;&amp;
+                                                    &lt;option value="Visa">
+                                                        Visa
+                                                    &lt;/option>}
+                          {cardType !== 'Amex' &amp;&amp;
+                                                    &lt;option value="Amex">
+                                                        Amex
+                                                    &lt;/option>}
+                        &lt;/Form.Select>
+                      &lt;/Form.Control>
+                    &lt;/Form.Field>
+                  &lt;/Columns.Column>
+                &lt;/Columns>
+
+                &lt;Form.Field kind="group">
+                  &lt;Form.Control>
+                    &lt;Button color="link">Submit&lt;/Button>
+                  &lt;/Form.Control>
+                  &lt;Form.Control>
+                    &lt;Button color="link" colorVariant="light">
+                                            Cancel
+                    &lt;/Button>
+                  &lt;/Form.Control>
+                &lt;/Form.Field>
+              &lt;/form>
+
+            &lt;/Container>
+          &lt;/Card>
+        &lt;/Container>
+
+      &lt;/Section>
+      &lt;RentedCard>&lt;/RentedCard>
+      &lt;PostedCard>&lt;/PostedCard>
+    &lt;/div>
+  );
+}
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="App.html">App</a></li><li><a href="CardComponent.html">CardComponent</a></li><li><a href="CartItem.html">CartItem</a></li><li><a href="Checkout.html">Checkout</a></li><li><a href="ChoicesMenu.html">ChoicesMenu</a></li><li><a href="Copyright.html">Copyright</a></li><li><a href="Create.html">Create</a></li><li><a href="DeleteButton.html">DeleteButton</a></li><li><a href="Description.html">Description</a></li><li><a href="DetailedItem.html">DetailedItem</a></li><li><a href="Footer.html">Footer</a></li><li><a href="Home.html">Home</a></li><li><a href="module.exports.html">exports</a></li><li><a href="NameImage.html">NameImage</a></li><li><a href="Payment.html">Payment</a></li><li><a href="RateAvailability.html">RateAvailability</a></li><li><a href="RentButton.html">RentButton</a></li><li><a href="Search.html">Search</a></li><li><a href="SearchBar.html">SearchBar</a></li><li><a href="Shipping.html">Shipping</a></li><li><a href="SignUp.html">SignUp</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.10</a> on Sat Apr 30 2022 06:22:51 GMT-0700 (Pacific Daylight Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

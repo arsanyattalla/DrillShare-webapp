@@ -1,4 +1,5 @@
 DrillShare webapp 
+- Tool Rental App which allows users to rent an item or list an item for others to rent and both parties can save/make money
 
 Steps on how to run app locally will be in the application folder
 
